@@ -1,16 +1,28 @@
 "use client";
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function Home() {
   const [waifuImage, setWaifuImage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isNsfw, setIsNsfw] = useState(false);
+  const [isDevMode, setIsDevMode] = useState(false); // new
 
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("nsfw") === "1") {
+      setIsDevMode(true);
+    }
+  }, []);
 
   const fetchWaifu = async () => {
     try {
-        setLoading(true); // start spinner
-      const response = await fetch("https://api.waifu.pics/sfw/waifu");
+      setLoading(true);
+      const endpoint = isNsfw
+        ? "https://api.waifu.pics/nsfw/waifu"
+        : "https://api.waifu.pics/sfw/waifu";
+
+      const response = await fetch(endpoint);
       const data = await response.json();
       setWaifuImage(data.url);
     } catch (error) {
@@ -59,17 +71,18 @@ export default function Home() {
           <a className="btn btn-ghost text-xl rounded-2xl">Waifu Randomiser😸</a>
         </div>
         <div className="navbar-end">
-           <img
-           className="w-10 h-10"
+          <img
+            className="w-10 h-10"
             alt="Tailwind CSS Navbar component"
-            src="favicon.ico" /> 
+            src="favicon.ico"
+          />
         </div>
       </div>
 
       {/* Centered Card */}
       <div className="min-h-screen flex items-center justify-center bg-base-200">
         <div className="card bg-base-100 shadow-xl w-96 outline-1 outline-gray-700 shadow-xl">
-  <figure className="flex justify-center p-4 min-h-[200px]">
+          <figure className="flex justify-center p-4 min-h-[200px]">
             {loading ? (
               <span className="loading loading-spinner loading-xl"></span>
             ) : waifuImage ? (
@@ -86,30 +99,40 @@ export default function Home() {
           <div className="card-body text-center items-center">
             <h2 className="card-title text-center text-2xl">Waifu Randomiser</h2>
             <p>Click the button to fetch a new one 👇</p>
-            <div className="card-actions justify-end">
+
+            {/* Hidden NSFW Toggle */}
+       {isDevMode && (
+  <label className="flex gap-2 items-center mt-4">
+    <input
+      type="checkbox"
+      checked={isNsfw}
+      onChange={(e) => setIsNsfw(e.target.checked)}
+    />
+    <span className="text-sm">Enable haram mode | L01 SAHAJA.🤫 </span>
+  </label>
+)}
+
+            <div className="card-actions justify-end mt-4">
               <button className="btn btn-primary rounded-lg" onClick={fetchWaifu}>
                 Get me a picture of a waifu
               </button>
             </div>
           </div>
         </div>
-      
-      
       </div>
 
-
-      
       {/* Footer */}
       <footer className="footer sm:footer-horizontal bg-neutral text-neutral-content p-10">
         <aside>
           <img
-           className="w-10 h-10"
+            className="w-10 h-10"
             alt="Tailwind CSS Navbar component"
-            src="favicon.ico" />
-          
-            <p className="text-2xl font-bold">Waifu Randomiser</p>
-            <br />
-            By HARITH ANAQI <p></p>EST 2025
+            src="favicon.ico"
+          />
+
+          <p className="text-2xl font-bold">Waifu Randomiser</p>
+          <br />
+          By HARITH ANAQI <p></p>EST 2025
         </aside>
         <nav>
           <h6 className="footer-title">Socials</h6>
